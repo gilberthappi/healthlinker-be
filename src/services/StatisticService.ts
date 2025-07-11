@@ -16,9 +16,9 @@ export class StatisticService {
                 gte: new Date(`${year}-01-01`),
                 lt: new Date(`${year + 1}-01-01`),
               },
-              roles: {
+              userRoles: {
                 some: {
-                  role: "CLIENT",
+                  name: "CLIENT",
                 },
               },
             },
@@ -32,9 +32,9 @@ export class StatisticService {
                 gte: new Date(`${year}-01-01`),
                 lt: new Date(`${year + 1}-01-01`),
               },
-              roles: {
+              userRoles: {
                 some: {
-                  role: "AGENT",
+                  name: "AGENT",
                 },
               },
             },
@@ -59,7 +59,7 @@ export class StatisticService {
                 gte: new Date(`${year}-01-01`),
                 lt: new Date(`${year + 1}-01-01`),
               },
-              status: "PENDING"
+              status: "PENDING",
             },
             select: {
               createdAt: true,
@@ -71,7 +71,7 @@ export class StatisticService {
                 gte: new Date(`${year}-01-01`),
                 lt: new Date(`${year + 1}-01-01`),
               },
-              status: "CONFIRMED"
+              status: "CONFIRMED",
             },
             select: {
               createdAt: true,

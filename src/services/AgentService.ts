@@ -28,10 +28,11 @@ export class AgentService extends BaseService {
       }
 
       // Assign the "USER" role
-      const assignRole = await prisma.userRoles.create({
+      const assignRole = await prisma.userRole.create({
         data: {
           userId: user.id,
-          role: roles.AGENT,
+          name: roles.AGENT,
+          permission: agentData.permissions,
         },
       });
 

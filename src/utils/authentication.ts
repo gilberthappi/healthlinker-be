@@ -22,11 +22,11 @@ export const expressAuthentication = (
         const user = await prisma.user.findFirst({
           where: { email },
           include: {
-            roles: true,
+            userRoles: true,
           },
         });
 
-        request.user = user as TUser;
+        request.user = user as unknown as TUser;
         resolve(user);
       } catch (error) {
         reject(new AppError("Not Authorized", 403));

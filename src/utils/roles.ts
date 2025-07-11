@@ -9,3 +9,14 @@ export enum roles {
   STAFF = "STAFF",
   CLIENT = "CLIENT",
 }
+
+export enum permissions {
+  ALL = "ALL",
+  DEFAULT = "DEFAULT",
+  CREATE_USER = "CREATE_USER",
+  DELETE_USER = "DELETE_USER",
+  UPDATE_USER = "UPDATE_USER",
+  VIEW_USER = "VIEW_USER",
+  MANAGE_ROLES = "MANAGE_ROLES",
+  MANAGE_PERMISSIONS = "MANAGE_PERMISSIONS",
+}

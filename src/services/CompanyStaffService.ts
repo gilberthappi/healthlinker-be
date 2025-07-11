@@ -24,8 +24,8 @@ export class CompanyStaffService {
         select: { email: true, id: true, lastName: true, firstName: true },
       },
     };
-    const companyUser = req.user?.roles?.some(
-      (role) => role.role === roles.ADMIN,
+    const companyUser = req.user?.userRoles?.some(
+      (role) => role.name === roles.ADMIN,
     )
       ? await prisma.companyUser.findMany({
           include: selection,
@@ -104,7 +104,7 @@ export class CompanyStaffService {
             id: true,
             firstName: true,
             lastName: true,
-            roles: true,
+            userRoles: true,
           },
         },
       },
@@ -119,7 +119,7 @@ export class CompanyStaffService {
       firstName: companyUser.user.firstName,
       lastName: companyUser.user.lastName,
       email: companyUser.user.email,
-      role: companyUser.user.roles.map((role) => role.role).join(", "),
+      role: companyUser.user.userRoles.map((role) => role.name).join(", "),
     }));
 
     return {
@@ -173,14 +173,15 @@ export class CompanyStaffService {
         lastName: data.lastName,
         email: data.email,
         password: hashSync("Pa$$word1", 10),
-        roles: {
+        userRoles: {
           create: {
-            role: data.role,
+            name: data.role,
+            permission: data.permissions,
           },
         },
       },
       include: {
-        roles: true,
+        userRoles: true,
       },
     });
 

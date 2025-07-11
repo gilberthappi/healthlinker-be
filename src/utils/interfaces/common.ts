@@ -1,6 +1,5 @@
 import type { $Enums, PaymentMethod } from "@prisma/client";
 import { TsoaResponse } from "tsoa";
-import { Role } from "@prisma/client";
 
 export interface IResponse<T> {
   statusCode: number;
@@ -37,16 +36,22 @@ export type TUser = {
   photo?: Express.Multer.File | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
-  roles?: { id: string; role: string; userId: string }[];
+  userRoles?: IUserRole[];
   company?: { id: string; role: string; userId: string; companyId: string };
 };
 
+export interface IUserRole {
+  id: string;
+  name: RoleType;
+  userId: string;
+  permission: string[];
+}
 export interface IUserResponse {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  roles: IRoles[];
+  userRoles: IUserRole[];
   password: string;
   createdAt: Date;
   phoneNumber: string;
@@ -60,42 +65,29 @@ export interface CreateUserDto {
   firstName: string;
   lastName: string;
   email: string;
-  roles: string;
-  role: string;
+  role: RoleType;
+  permissions: string[];
   password: string;
   phoneNumber: string;
   photo?: Express.Multer.File | string | null;
 }
 
-export interface IRoles {
-  id: string;
-  userId: string;
-  role: string;
-}
-
-export type RoleT =
-  | "ADMIN"
-  | "AGENT"
-  | "COMPANY_ADMIN"
-  | "COMPANY_USER"
-  | "DEVELOPER"
-  | "ADMINISTRATOR"
-  | "MANAGER"
-  | "STAFF"
-  | "CLIENT";
+export type RoleType = $Enums.RoleType;
 
 export interface IUser extends Omit<TUser, "id" | "createdAt" | "updatedAt"> {}
 export interface ILoginResponse
-  extends Omit<TUser, "password" | "createdAt" | "updatedAt" | "roles"> {
+  extends Omit<TUser, "password" | "createdAt" | "updatedAt" | "userRoles"> {
   token: string;
-  roles: $Enums.Role[];
+  userRoles: IUserRole[];
 }
 export interface ILoginUser extends Pick<IUser, "email" | "password"> {}
 export interface ISignUpUser
   extends Pick<
     IUser,
     "email" | "password" | "firstName" | "lastName" | "photo" | "phoneNumber"
-  > {}
+  > {
+  role: RoleType;
+}
 
 export type TErrorResponse = TsoaResponse<
   400 | 401 | 500,
@@ -250,6 +242,7 @@ export interface CreateAgentDto {
   whatsapp: string;
   joined: string;
   languages: string;
+  permissions: string[];
   about: string;
   email: string;
   phoneNumber: string;
@@ -518,7 +511,8 @@ export interface CreateCompanyStaffDto {
   email: string;
   phoneNumber?: string;
   title?: string;
-  role: Role;
+  role: RoleType;
+  permissions: string[];
   idNumber?: string;
   companyId?: string;
   idAttachment?: Express.Multer.File | string;

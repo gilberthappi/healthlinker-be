@@ -11,12 +11,12 @@ export const isACompanyMemberOrAdmin = async (
     // @ts-ignore
     const userId = req.user.id;
     //@ts-ignore
-    const userRoles = req.user.roles;
+    const userRoles = req.user?.userRoles;
     if (
       userRoles?.some(
         (role) =>
-          role.role.includes(roles.ADMIN) ||
-          role.role.includes(roles.COMPANY_ADMIN),
+          role.name.includes(roles.ADMIN) ||
+          role.name.includes(roles.COMPANY_ADMIN),
       )
     ) {
       return next();

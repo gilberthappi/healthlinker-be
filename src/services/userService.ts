@@ -17,7 +17,7 @@ import { hash } from "bcrypt";
 import { roles } from "../utils/roles";
 import type { Request } from "express";
 import { QueryOptions, Paginations } from "../utils/DBHelpers";
-import { Role } from "@prisma/client";
+import { RoleType } from "@prisma/client";
 
 export class UserService extends BaseService {
   public static async getUsers(
@@ -36,7 +36,7 @@ export class UserService extends BaseService {
       const users = await prisma.user.findMany({
         where: queryOptions,
         include: {
-          roles: true,
+          userRoles: true,
           agents: true,
         },
         ...pagination,
@@ -67,7 +67,7 @@ export class UserService extends BaseService {
       const userData = await prisma.user.findFirst({
         where: { email: user.email },
         include: {
-          roles: true,
+          userRoles: true,
         },
       });
       if (!userData) {
@@ -77,17 +77,24 @@ export class UserService extends BaseService {
       const isPasswordSimilar = await compare(user.password, userData.password);
       if (isPasswordSimilar) {
         const token = jwt.sign(user.email, process.env.JWT_SECRET!);
-        const userRoles = userData.roles.map((roleRecord) => roleRecord.role);
+        const userRoles = userData.userRoles.map(
+          (roleRecord) => roleRecord.name,
+        );
+        const userPermissions = userData.userRoles.map(
+          (roleRecord) => roleRecord.permission,
+        );
         return {
-          message: "",
+          message: "login successfull",
           statusCode: 200,
           data: {
             token,
             firstName: userData.firstName,
             lastName: userData.lastName,
             email: userData.email,
+            phoneNumber: userData.phoneNumber,
             id: userData.id,
             roles: userRoles,
+            permissions: userPermissions,
             photo: userData.photo,
           },
         };
@@ -129,10 +136,11 @@ export class UserService extends BaseService {
         }
 
         // Assign the "USER" role
-        const assignRole = await tx.userRoles.create({
+        const assignRole = await tx.userRole.create({
           data: {
             userId: createdUser.id,
-            role: roles.CLIENT,
+            name: roles.CLIENT,
+            permission: ["DEFAULT"],
           },
         });
 
@@ -183,10 +191,11 @@ export class UserService extends BaseService {
         },
       });
 
-      await prisma.userRoles.create({
+      await prisma.userRole.create({
         data: {
           userId: createdUser.id,
-          role: user.role as Role,
+          name: user.role as RoleType,
+          permission: user.permissions,
         },
       });
 
@@ -220,9 +229,16 @@ export class UserService extends BaseService {
       });
 
       if (user.role) {
-        await prisma.userRoles.updateMany({
+        await prisma.userRole.updateMany({
           where: { userId: id },
-          data: { role: user.role as Role },
+          data: { name: user.role as RoleType },
+        });
+      }
+
+      if (user.permissions && user.permissions?.length > 0) {
+        await prisma.userRole.updateMany({
+          where: { userId: id },
+          data: { permission: user.permissions },
         });
       }
 
@@ -268,7 +284,7 @@ export class UserService extends BaseService {
     This OTP is valid for a limited time. If you did not request a password reset, please disregard this email.
 
     Best regards,
-    KIGALI HOT MARKET Support Team
+    HealthLinker Support Team
   `,
     });
 
@@ -313,7 +329,7 @@ export class UserService extends BaseService {
       const user = await prisma.user.findUnique({
         where: { id },
         include: {
-          roles: true,
+          userRoles: true,
           likes: true,
           testimonials: true,
           agents: {
@@ -356,7 +372,7 @@ export class UserService extends BaseService {
         }
 
         // Delete the user's roles
-        await tx.userRoles.deleteMany({
+        await tx.userRole.deleteMany({
           where: { userId: id },
         });
 
@@ -378,7 +394,7 @@ export class UserService extends BaseService {
       const user = await prisma.user.findUnique({
         where: { id: userId },
         include: {
-          roles: true,
+          userRoles: true,
         },
       });
 
@@ -386,7 +402,10 @@ export class UserService extends BaseService {
         throw new AppError("User not found", 404);
       }
 
-      const userRoles = user.roles.map((roleRecord) => roleRecord.role);
+      const userRoles = user.userRoles.map((roleRecord) => roleRecord.name);
+      const userPermissions = user.userRoles.map(
+        (roleRecord) => roleRecord.permission,
+      );
       return {
         message: "User fetched successfully",
         statusCode: 200,
@@ -395,7 +414,10 @@ export class UserService extends BaseService {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
+          phoneNumber: user.phoneNumber,
+          photo: user.photo,
           roles: userRoles,
+          permissions: userPermissions,
         },
       };
     } catch (error) {

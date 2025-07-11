@@ -2,7 +2,7 @@ import { prisma } from "../utils/client";
 
 import { CreateCompanyDto, TCompany } from "../utils/interfaces/common";
 import { hashSync } from "bcrypt";
-import { roles } from "../utils/roles";
+import { permissions, roles } from "../utils/roles";
 
 export const companyCreatedHandler = async (
   company: TCompany,
@@ -21,8 +21,12 @@ export const companyCreatedHandler = async (
       if (!companyAdmin) {
         throw new Error("Failed to create company Admin");
       }
-      const assignRole = await tx.userRoles.create({
-        data: { userId: companyAdmin.id, role: roles.COMPANY_ADMIN },
+      const assignRole = await tx.userRole.create({
+        data: {
+          userId: companyAdmin.id,
+          name: roles.COMPANY_ADMIN,
+          permission: [permissions.DEFAULT],
+        },
       });
       if (!assignRole) {
         throw new Error("Failed to assign role to company Admin");

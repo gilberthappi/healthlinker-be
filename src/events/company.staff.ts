@@ -1,4 +1,4 @@
-import { roles } from "../utils/roles";
+import { permissions, roles } from "../utils/roles";
 import { prisma } from "../utils/client";
 
 import { CreateCompanyStaffDto, TUser } from "../utils/interfaces/common";
@@ -9,8 +9,12 @@ export const companyStaffCreatedHandler = async (
 ) => {
   try {
     await prisma.$transaction(async (tx) => {
-      const assignRole = await tx.userRoles.create({
-        data: { userId: user?.id, role: roles.COMPANY_USER },
+      const assignRole = await tx.userRole.create({
+        data: {
+          userId: user?.id,
+          name: roles.COMPANY_USER,
+          permission: [permissions.DEFAULT],
+        },
       });
 
       if (!assignRole) {

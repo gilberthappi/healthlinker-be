@@ -20,9 +20,9 @@ export class companyService {
           CompanyUser: {
             where: {
               user: {
-                roles: {
+                userRoles: {
                   some: {
-                    role: roles.COMPANY_ADMIN,
+                    name: roles.COMPANY_ADMIN,
                   },
                 },
               },
@@ -84,9 +84,9 @@ export class companyService {
         CompanyUser: {
           where: {
             user: {
-              roles: {
+              userRoles: {
                 some: {
-                  role: roles.COMPANY_ADMIN,
+                  name: roles.COMPANY_ADMIN,
                 },
               },
             },

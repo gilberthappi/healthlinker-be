@@ -19,20 +19,32 @@ model User {
   otp                String?
   otpExpiresAt       DateTime? 
   photo              String         @default("https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg")
-  roles              UserRoles[]
+  userRoles          UserRole[]
   likes              Likes[]  
   testimonials       Testimony[]
   agents              Agents[]
   company            CompanyUser?
 }
 
-model UserRoles {
-  id     String  @id @default(uuid())
-  userId String
-  role   Role
-  user   User @relation(fields: [userId], references: [id])
+enum RoleType {
+  ADMIN
+  AGENT
+  COMPANY_ADMIN
+  COMPANY_USER
+  DEVELOPER
+  ADMINISTRATOR
+  MANAGER
+  STAFF
+  CLIENT
 }
 
+model UserRole {
+  id          String  @id @default(uuid())
+  userId      String
+  name        RoleType
+  permission  String[]
+  user        User    @relation(fields: [userId], references: [id])
+}
 
 model Services {
   id                      String           @id @default(uuid())
@@ -81,18 +93,6 @@ model Contact {
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
   enquiryProperty         EnquiryProperty?   @relation(fields: [enquiryPropertyId], references: [id])
-}
-
-enum Role {
-  ADMIN
-  AGENT
-  COMPANY_ADMIN
-  COMPANY_USER
-  DEVELOPER
-  ADMINISTRATOR
-  MANAGER
-  STAFF
-  CLIENT
 }
 
 enum ProductCategory {

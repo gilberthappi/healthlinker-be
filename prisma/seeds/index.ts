@@ -1,5 +1,5 @@
 import { hashSync } from "bcrypt";
-import { roles } from "../../src/utils/roles";
+import { permissions, roles } from "../../src/utils/roles";
 import { prisma } from "../../src/utils/client";
 
 async function main() {
@@ -13,8 +13,12 @@ async function main() {
         password: hashSync("Password123!", 10),
       },
     });
-    await prisma.userRoles.create({
-      data: { userId: developer.id, role: roles.DEVELOPER },
+    await prisma.userRole.create({
+      data: {
+        userId: developer.id,
+        name: roles.DEVELOPER,
+        permission: [permissions.ALL],
+      },
     });
     const admin = await prisma.user.create({
       data: {
@@ -24,8 +28,12 @@ async function main() {
         password: hashSync("Password123!", 10),
       },
     });
-    await prisma.userRoles.create({
-      data: { userId: admin.id, role: roles.ADMIN },
+    await prisma.userRole.create({
+      data: {
+        userId: admin.id,
+        name: roles.ADMIN,
+        permission: [permissions.ALL],
+      },
     });
     console.log("SEEDING COMPLETE");
   } catch (error) {

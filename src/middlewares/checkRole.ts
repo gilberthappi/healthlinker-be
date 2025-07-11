@@ -6,12 +6,12 @@ type Role = keyof typeof roles;
 export const checkRole =
   (...persmissions: Role[]) =>
   (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.user?.roles);
-    if (!req.user?.roles) {
+    console.log(req.user?.userRoles);
+    if (!req.user?.userRoles) {
       throw new AppError("Access denied", 403);
     }
-    const isArrowed = req.user?.roles.some((permission) =>
-      persmissions.includes(permission.role as Role),
+    const isArrowed = req.user?.userRoles.some((permission) =>
+      persmissions.includes(permission.name as Role),
     );
     if (!isArrowed) {
       throw new AppError("Access Denied", 403);

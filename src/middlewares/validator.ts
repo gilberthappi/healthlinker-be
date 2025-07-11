@@ -15,4 +15,5 @@ const validate =
       return res.status(400).json({ errors: validationErrors, mess: req.body });
     }
   };
+
 export default validate;
